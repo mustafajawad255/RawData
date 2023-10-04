@@ -1,0 +1,60 @@
+﻿@model List<RawDataShared.Trade>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h3>RawData Pivot</h3>
+    
+</div>
+
+<br />
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>@Html.Label("Row Labels")</th>
+            <th>@Html.Label("Sum of Reporting Amount")</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @{
+            foreach (var instrument in Model.Select(s => s.Instrument.Name).Distinct())
+            {
+                <tr>
+                    <td style="margin-right:20px">
+                        @instrument
+                    </td>
+                    <td class="boldFont">
+
+                        @Html.Raw(Model.Where(w => w.Instrument.Name == instrument).Select(s => s.ReportingAmount).Sum().ToString("N"))
+
+                    </td>
+                </tr>
+
+                foreach (var businessUnit in @Model.Where(w => w.Instrument.Name == instrument).Select(s => s.BusinessUnit.Name).Distinct())
+                {
+                    <tr>
+                        <td>
+                            &nbsp;@businessUnit
+                        </td>
+                        <td class="boldFont">@Model.Where(w => w.Instrument.Name == instrument && w.BusinessUnit.Name==businessUnit).Select(s => s.ReportingAmount).Sum().ToString("N")</td>
+                    </tr>
+
+                    foreach (var profitCentre in @Model.Where(w => w.BusinessUnit.Name == businessUnit && w.Instrument.Name == instrument).Select(s => s.ProfitCentre.Name).Distinct())
+                    {
+                        <tr>
+                            <td>&nbsp;&nbsp;@profitCentre</td>
+                            <td>@Model.Where(w => w.Instrument.Name == instrument && w.BusinessUnit.Name== businessUnit && w.ProfitCentre.Name== profitCentre).First().ReportingAmount.ToString("N")</td>
+                        </tr>
+                    }
+                }
+            }
+        }
+        <tr style="background-color:gray">
+            <td>@Html.Label("Grand Total")</td>
+            <td class="boldFont">@Model.Select(s => s.ReportingAmount).Sum().ToString("N")</td>
+        </tr>
+    </tbody>
+</table>
